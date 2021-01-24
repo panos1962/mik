@@ -1,4 +1,4 @@
-EXEC = mik
+EXEC = mik.exe
 OBJS = global.o main.o mik.o
 
 N_TEST = 90
