@@ -46,15 +46,26 @@ int main(int argc, char *argv[]) {
 
 	while ((opt = getopt(argc, argv, ":mvs")) != EOF) {
 		switch (opt) {
+
+		// By default το πρόγραμμα χρησιμοποιεί memoization. Με την
+		// option -m ακυρώνουμε το memoization.
 		case 'm':
 			mikPart = mikPartStraight;
 			break;
+
+		// By default το πρόγραμμα εκτυπώνει το [N]. Με την option -v
+		// (verbose) εκτυπώνεται το N και το [N].
 		case 'v':
 			verbose = 1;
 			break;
+
+		// Με την option -s ακυρώνουμε οποιοδήποτε output. Προφανώς
+		// αυτό είναι κάτι που μπορεί να χρειαστεί μόνο σε μετρήσεις
+		// απόδοσης.
 		case 's':
 			silent = 1;
 			break;
+
 		default:
 			fprintf(stderr, "%s: %c: invalid option\n",
 				progname, optopt);
@@ -71,18 +82,33 @@ int main(int argc, char *argv[]) {
 	argc -= optind;
 	argv += optind;
 
+	// Το πρόγραμμα μπορεί να δεχθεί ως παραμέτρους έναν ή δύο θετικούς
+	// ακεραίους.
+
 	switch (argc) {
+
+	// Αν δοθεί ένας μόνο αριθμός N, τότε το πρόγραμμα θα υπολογίσει
+	// το [N].
 	case 1:
 		min = atoi(argv[0]);
 		max = min;
 		break;
+
+	// Αν δοθούν δύο αριθμοί N και M, τότε το πρόγραμμα θα εκτυπώσει
+	// όλα τα [i] με το i να λαμβάνει τιμές από το N έως και το M.
 	case 2:
 		min = atoi(argv[0]);
 		max = atoi(argv[1]);
 		break;
+
 	default:
 		usage();
 	}
+
+	// XXX
+	// Υπάρχει κάποιο όριο της τάξης του 10000, αλλά το πρόγραμμα βγάζει
+	// ακριβή αποτελέσματα μέχρι και τον αριθμό 416. Για μεγαλύτερους
+	// αριθμούς το πρόγραμμα υπολογίζει προσεγγιστικά αποτελέσματα.
 
 	if (max > MAX) {
 		fprintf(stderr, "%s: %d: max number overflow\n",
@@ -90,7 +116,6 @@ int main(int argc, char *argv[]) {
 		exit(EXIT_OVERFLOW);
 	}
 
-	int i;
 	int n;
 	int step;
 
@@ -99,12 +124,15 @@ int main(int argc, char *argv[]) {
 		step = 1;
 	}
 
+	// Σε περίπτωση που το M είναι μικρότερο από το N γίνονται οι
+	// υπολογισμοί με αντίστροφη σειρά.
+
 	else {
 		n = min - max;
 		step = -1;
 	}
 
-	for (i = min; n >= 0; i += step, n--) {
+	for (int i = min; n >= 0; i += step, n--) {
 		long double mik = mikAll(i);
 
 		if (silent)
