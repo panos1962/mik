@@ -1,4 +1,4 @@
 #include "mik.h"
 
 char *progname = "mik";
-double (*mikPart)(int, int) = mikPartMemoize;
+long double (*mikPart)(int, int) = mikPartMemoize;

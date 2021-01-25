@@ -1,7 +1,7 @@
 #include "mik.h"
 
-double mikAll(int n) {
-	double count;
+long double mikAll(int n) {
+	long double count;
 	int k;
 
 	for (count = 0, k = 1; k <= n; k++)
@@ -10,9 +10,9 @@ double mikAll(int n) {
 	return count;
 }
 
-static double mikMmz[MAX + 1][MAX + 1];
+static long double mikMmz[MAX + 1][MAX + 1];
 
-double mikPartMemoize(int n, int k) {
+long double mikPartMemoize(int n, int k) {
 	if (k == 1)
 	return 1;
 
@@ -31,7 +31,7 @@ double mikPartMemoize(int n, int k) {
 	return mikMmz[n][k];
 }
 
-double mikPartStraight(int n, int k) {
+long double mikPartStraight(int n, int k) {
 	if (k == 1)
 	return 1;
 
@@ -41,7 +41,7 @@ double mikPartStraight(int n, int k) {
 	int m = n - k;
 	int min = (m < k ? m : k);
 
-	double count;
+	long double count;
 
 	for (count = 0; min > 0; min--)
 	count += mikPart(m, min);

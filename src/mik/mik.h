@@ -7,9 +7,9 @@
 #define MAX 10000
 
 extern char *progname;
-extern double (*mikPart)(int, int);
+extern long double (*mikPart)(int, int);
 
 extern int main(int, char *[]);
-extern double mikAll(int);
-extern double mikPartMemoize(int, int);
-extern double mikPartStraight(int, int);
+extern long double mikAll(int);
+extern long double mikPartMemoize(int, int);
+extern long double mikPartStraight(int, int);
