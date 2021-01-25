@@ -39,18 +39,16 @@ long double mikPartMemoize(int n, int k) {
 	return 1;
 
 	int m = n - k;
-	int min = (m < k ? m : k);
+	int i = (m < k ? m : k);
 
-	for (mikMmz[n][k] = 0; min > 0; min--)
-	mikMmz[n][k] += mikPart(m, min);
+	for (mikMmz[n][k] = 0; i > 0; i--)
+	mikMmz[n][k] += mikPart(m, i);
 
 	return mikMmz[n][k];
 }
 
-// Ακολουθεί η function "mikPartStraight" που δέχεται έναν θετικό ακέραιο N και
-// ένα πλήθος k <= N, και υπολογίζει το [N:k], δηλαδή το πλήθος όλων των ΜΙΚ
-// των N πραγμάτων σε k ομάδες, επομένως επιτελεί τις ίδιες ακριβώς διεργασίες
-// που επιτελεί και η "mikPartMemoize" χωρίς όμως να μετέρχεται memoization,
+// Η function "mikPartStraight" επιτελεί τις ίδιες ακριβώς διεργασίες που
+// επιτελεί και η "mikPartMemoize" χωρίς όμως να μετέρχεται memoization,
 // γεγονός που την καθιστά πολύ πιο αργή από την "mikPartMemoize". Ο μόνος
 // λόγος που παρέχεται ως εναλλακτική function υπολογισμού είναι για τον
 // έλεγχο της διαφοράς στην απόδοση.
@@ -63,12 +61,12 @@ long double mikPartStraight(int n, int k) {
 	return 1;
 
 	int m = n - k;
-	int min = (m < k ? m : k);
+	int i = (m < k ? m : k);
 
 	long double count;
 
-	for (count = 0; min > 0; min--)
-	count += mikPart(m, min);
+	for (count = 0; i > 0; i--)
+	count += mikPart(m, i);
 
 	return count;
 }
