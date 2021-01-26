@@ -10,5 +10,4 @@
 extern char *progname;
 
 extern int main(int, char *[]);
-extern void mikAll(int, mpz_t);
-extern void mikPart(int, int, mpz_t);
+extern void mikAll(mpz_t, int);

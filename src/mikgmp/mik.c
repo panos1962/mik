@@ -1,56 +1,57 @@
 #include "mik.h"
 
-// Η function "mikAll" δέχεται έναν θετικό ακέραιο N και υπλογίζει το [N],
-// δηλαδή το πλήθος όλων των μη ισοδυνάμων καταμερισμών (ΜΙΚ) των N πραγμάτων.
-// Η μέθοδος που ακολουθείται στο παρόν είναι η εξής: Για κάθε αριθμό k από το
-// 1 έως και το N, υπολογίζονται όλοι οι ΜΙΚ των N στοιχείων σε k ομάδες με τη
-// function "mikPart". Το άθροισμα όλων αυτών των συνδυασμών είναι προφανώς το
-// ζητούμενο.
-
-void mikAll(int n, mpz_t count) {
-	int k;
-
-	mpz_t t;
-	mpz_init(t);
-
-	for (mpz_set_ui(count, 0), k = 1; k <= n; k++) {
-		mikPart(n, k, t);
-		mpz_add(count, count, t);
-	}
-
-	mpz_clear(t);
-}
-
-// Ακολουθεί η function "mikPart" που δέχεται έναν θετικό ακέραιο N και ένα
-// πλήθος k <= N, και υπολογίζει το [N:k], δηλαδή το πλήθος όλων των ΜΙΚ των
-// N πραγμάτων σε k ομάδες. Η function μετέρχεται memoization καθώς πολλές
-// φορές το πρόγραμμα υπολογίζει ξανά και ξανά τους ίδιους ακριβώς συδυασμούς.
+// Η function "mikPart" δέχεται δύο θετικούς ακεραίους N και k με k ≤ N, και
+// υπολογίζει το [N:k], δηλαδή το πλήθος όλων των ΜΙΚ των N πραγμάτων σε k
+// ομάδες. Η function μετέρχεται memoization καθώς πολλές φορές το πρόγραμμα
+// υπολογίζει ξανά και ξανά τους ίδιους ακριβώς συνδυασμούς.
 
 static char mikMmzSet[MAX + 1][MAX + 1];
 static mpz_t mikMmzVal[MAX + 1][MAX + 1];
 
-void mikPart(int n, int k, mpz_t x) {
+static void mikPart(int n, int k) {
+	// Αν το ζητούμενο έχει ήδη υπολογιστεί, τότε δεν προβαίνουμε σε
+	// καμία περαιτέρω ενέργεια.
+
 	if (mikMmzSet[n][k])
-	return mpz_set(x, mikMmzVal[n][k]);
+	return;
 
-	if (k == 1)
-	return mpz_set_ui(x, 1);
-
-	if (k == n)
-	return mpz_set_ui(x, 1);
-
-	int m = n - k;
-	int i = (m < k ? m : k);
-
-	mpz_t t;
-	mpz_init(t);
 	mpz_init(mikMmzVal[n][k]);
 
-	for (mpz_set_ui(x, 0); i > 0; i--) {
-		mikPart(m, i, t);
-		mpz_add(x, x, t);
+	if (k == 1)
+	mpz_set_ui(mikMmzVal[n][k], 1);
+
+	else if (k == n)
+	mpz_set_ui(mikMmzVal[n][k], 1);
+
+	else {
+		int m = n - k;
+		int i = (m < k ? m : k);
+
+		for (mpz_set_ui(mikMmzVal[n][k], 0); i > 0; i--) {
+			if (!mikMmzSet[m][i])
+			mikPart(m, i);
+
+			mpz_add(mikMmzVal[n][k], mikMmzVal[n][k],
+				mikMmzVal[m][i]);
+		}
 	}
 
-	mpz_set(mikMmzVal[n][k], x);
 	mikMmzSet[n][k] = 1;
+}
+
+// Ακολουθεί η βασική function "mikAll" που δέχεται έναν θετικό ακέραιο N και
+// υπολογίζει το [N], τουτέστιν το πλήθος όλων των μη ισοδυνάμων καταμερισμών
+// (ΜΙΚ) των N πραγμάτων. Η μέθοδος που ακολουθείται στο παρόν είναι η εξής:
+// Για κάθε αριθμό k από το 1 έως και το N, υπολογίζονται όλοι οι ΜΙΚ των N
+// στοιχείων σε k ομάδες με τη function "mikPart". Το άθροισμα όλων αυτών
+// των συνδυασμών είναι προφανώς το ζητούμενο όλων των ΜΙΚ των Ν πραγμάτων
+// σε k ομάδες με 1 ≤ k ≤ N.
+
+void mikAll(mpz_t count, int n) {
+	mpz_set_ui(count, 0);
+
+	for (int k = 1; k <= n; k++) {
+		mikPart(n, k);
+		mpz_add(count, count, mikMmzVal[n][k]);
+	}
 }
