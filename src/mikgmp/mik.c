@@ -8,34 +8,52 @@
 static char mikMmzSet[MAX + 1][MAX + 1];
 static mpz_t mikMmzVal[MAX + 1][MAX + 1];
 
+// Η function "mikPart" καλείται όποτε παραστεί ανάγκη να υπολογίσει το
+// πλήθος [N:k] για πρώτη φορά. Το αποτέλεσμα κρατείται ώστε την επόμενη
+// φορά να χρησιμοποιηθεί απευθείας· ο συγκεκριμένος έλεγχος γίνεται εκτός
+// της function, ενώ κανονικά θα έπρεπε να γίνεται εντός της function, καθώς
+// υπάρχει σημαντική διαφορά στην απόδοση.
+
 static void mikPart(int n, int k) {
-	// Αν το ζητούμενο έχει ήδη υπολογιστεί, τότε δεν προβαίνουμε σε
-	// καμία περαιτέρω ενέργεια.
-
-	if (mikMmzSet[n][k])
-	return;
-
 	mpz_init(mikMmzVal[n][k]);
 
-	if (k == 1)
-	mpz_set_ui(mikMmzVal[n][k], 1);
+	// Στην περίπτωση που ζητάμε χωρισμό σε μία (1) ομάδα, τότε
+	// προφανώς αυτό γίνεται με έναν μόνο τρόπο.
 
-	else if (k == n)
-	mpz_set_ui(mikMmzVal[n][k], 1);
-
-	else {
-		int m = n - k;
-		int i = (m < k ? m : k);
-
-		for (mpz_set_ui(mikMmzVal[n][k], 0); i > 0; i--) {
-			if (!mikMmzSet[m][i])
-			mikPart(m, i);
-
-			mpz_add(mikMmzVal[n][k], mikMmzVal[n][k],
-				mikMmzVal[m][i]);
-		}
+	if (k == 1) {
+		mpz_set_ui(mikMmzVal[n][k], 1);
+		goto MEMOIZE;
 	}
 
+	// Επίσης, στην περίπτωση που ζητάμε χωρισμό σε τόσες ομάδες
+	// όσες είναι και το πλήθος των στοιχείων, αυτό γίνεται πάλι
+	// με έναν μόνο τρόπο. Το ίδιο ισχύει και στην περίπτωση που
+	// «περισσεύει» ένα μόνο στοιχείο.
+
+	int m = n - k;
+
+	if (m < 2) {
+		mpz_set_ui(mikMmzVal[n][k], 1);
+		goto MEMOIZE;
+	}
+
+	// Ακολουθεί κώδικας για μη τετριμμένες περιπτώσεις. Πιο
+	// συγκεκριμένα, τοποθετούμε από ένα στοιχείο στην κάθε
+	// ομάδα και κατόπιν δημιουργούμε όλους τους ΜΙΚ για τα
+	// στοιχεία που περισσεύουν, σε ομάδες μέχρι του πλήθους
+	// των ομάδων ή του πλήθους των στοιχείων αυτών, ό,τι
+	// είναι μικρότερο.
+
+	mpz_set_ui(mikMmzVal[n][k], 0);
+	for (int i = (m < k ? m : k); i > 0; i--) {
+		if (!mikMmzSet[m][i])
+		mikPart(m, i);
+
+		mpz_add(mikMmzVal[n][k], mikMmzVal[n][k],
+			mikMmzVal[m][i]);
+	}
+
+MEMOIZE:
 	mikMmzSet[n][k] = 1;
 }
 
@@ -49,9 +67,10 @@ static void mikPart(int n, int k) {
 
 void mikAll(mpz_t count, int n) {
 	mpz_set_ui(count, 0);
-
 	for (int k = 1; k <= n; k++) {
+		if (!mikMmzSet[n][k])
 		mikPart(n, k);
+
 		mpz_add(count, count, mikMmzVal[n][k]);
 	}
 }
