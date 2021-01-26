@@ -14,7 +14,7 @@
 // χρόνους εκτέλεσης κλπ.
 
 static void usage(void) {
-	fprintf(stderr, "usage: %s [-v] [-s] number [number]\n",
+	fprintf(stderr, "usage: %s [-v] [-s] [-D] number [number]\n",
 		progname);
 	exit(EXIT_USAGE);
 }
@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
 	int silent = 0;
 	int errs = 0;
 
-	while ((opt = getopt(argc, argv, ":vs")) != EOF) {
+	while ((opt = getopt(argc, argv, ":vsD")) != EOF) {
 		switch (opt) {
 
 		// By default το πρόγραμμα εκτυπώνει το [N]. Με την option -v
@@ -46,8 +46,12 @@ int main(int argc, char *argv[]) {
 			silent = 1;
 			break;
 
+		case 'D':
+			debug = 1;
+			break;
+
 		default:
-			fprintf(stderr, "%s: %c: invalid option\n",
+			fprintf(stderr, "%s: -%c: invalid option\n",
 				progname, optopt);
 			errs++;
 		}
@@ -128,5 +132,17 @@ int main(int argc, char *argv[]) {
 	}
 
 	mpz_clear(mik);
+
+	if (debug) {
+		fprintf(stderr, "Calls: %llu\nExecs: %llu",
+			mikPartCallCount, mikPartExecCount);
+
+		if (mikPartCallCount)
+		fprintf(stderr, " (%.2lf%%)",
+			(100.0 * mikPartExecCount) / mikPartCallCount);
+
+		putc('\n', stderr);
+	}
+
 	exit(0);
 }

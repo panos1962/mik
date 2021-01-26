@@ -1,5 +1,15 @@
 #include "mik.h"
 
+#define MIK_PART_ADD(count, n, k) { \
+	if (debug) \
+	mikPartCallCount++; \
+\
+	if (!mikMmzSet[n][k]) \
+	mikPart(n, k); \
+\
+	mpz_add(count, count, mikMmzVal[n][k]); \
+}
+
 // Η function "mikPart" δέχεται δύο θετικούς ακεραίους N και k με k ≤ N, και
 // υπολογίζει το [N:k], δηλαδή το πλήθος όλων των ΜΙΚ των N πραγμάτων σε k
 // ομάδες. Η function μετέρχεται memoization καθώς πολλές φορές το πρόγραμμα
@@ -15,6 +25,9 @@ static mpz_t mikMmzVal[MAX + 1][MAX + 1];
 // υπάρχει σημαντική διαφορά στην απόδοση.
 
 static void mikPart(int n, int k) {
+	if (debug)
+	mikPartExecCount++;
+
 	mpz_init(mikMmzVal[n][k]);
 
 	// Στην περίπτωση που ζητάμε χωρισμό σε μία (1) ομάδα, τότε
@@ -45,13 +58,9 @@ static void mikPart(int n, int k) {
 	// είναι μικρότερο.
 
 	mpz_set_ui(mikMmzVal[n][k], 0);
-	for (int i = (m < k ? m : k); i > 0; i--) {
-		if (!mikMmzSet[m][i])
-		mikPart(m, i);
 
-		mpz_add(mikMmzVal[n][k], mikMmzVal[n][k],
-			mikMmzVal[m][i]);
-	}
+	for (int i = (m < k ? m : k); i > 0; i--)
+	MIK_PART_ADD(mikMmzVal[n][k], m, i);
 
 MEMOIZE:
 	mikMmzSet[n][k] = 1;
@@ -67,10 +76,7 @@ MEMOIZE:
 
 void mikAll(mpz_t count, int n) {
 	mpz_set_ui(count, 0);
-	for (int k = 1; k <= n; k++) {
-		if (!mikMmzSet[n][k])
-		mikPart(n, k);
 
-		mpz_add(count, count, mikMmzVal[n][k]);
-	}
+	for (int k = 1; k <= n; k++)
+	MIK_PART_ADD(count, n, k);
 }

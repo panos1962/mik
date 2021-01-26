@@ -9,5 +9,9 @@
 
 extern char *progname;
 
+extern int debug;
+extern unsigned long long mikPartCallCount;
+extern unsigned long long mikPartExecCount;
+
 extern int main(int, char *[]);
 extern void mikAll(mpz_t, int);
