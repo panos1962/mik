@@ -10,6 +10,9 @@
 	mpz_add(count, count, mikMmzVal[n][k]); \
 }
 
+unsigned long long mikPartCallCount = 0;
+unsigned long long mikPartExecCount = 0;
+
 // Η function "mikPart" δέχεται δύο θετικούς ακεραίους N και k με k ≤ N, και
 // υπολογίζει το [N:k], δηλαδή το πλήθος όλων των ΜΙΚ των N πραγμάτων σε k
 // ομάδες. Η function μετέρχεται memoization καθώς πολλές φορές το πρόγραμμα
@@ -79,4 +82,26 @@ void mikAll(mpz_t count, int n) {
 
 	for (int k = 1; k <= n; k++)
 	MIK_PART_ADD(count, n, k);
+}
+
+void printDebug(void) {
+	fprintf(stderr, "Calls: %llu\nExecs: %llu",
+		mikPartCallCount, mikPartExecCount);
+
+	if (mikPartCallCount)
+	fprintf(stderr, " (%.2lf%%)",
+		(100.0 * mikPartExecCount) / mikPartCallCount);
+
+	putc('\n', stderr);
+
+	for (int i = 1; i <= MAX; i++) {
+		for (int j = 1; j <= MAX; j++) {
+			if (!mpz_cmp_ui(mikMmzVal[i][j], 0))
+			continue;
+
+			fprintf(stderr, "[%d:%d] = ", i, j);
+			mpz_out_str(stderr, 10, mikMmzVal[i][j]);
+			putc('\n', stderr);
+		}
+	}
 }

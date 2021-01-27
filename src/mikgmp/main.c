@@ -133,16 +133,8 @@ int main(int argc, char *argv[]) {
 
 	mpz_clear(mik);
 
-	if (debug) {
-		fprintf(stderr, "Calls: %llu\nExecs: %llu",
-			mikPartCallCount, mikPartExecCount);
-
-		if (mikPartCallCount)
-		fprintf(stderr, " (%.2lf%%)",
-			(100.0 * mikPartExecCount) / mikPartCallCount);
-
-		putc('\n', stderr);
-	}
+	if (debug)
+	printDebug();
 
 	exit(0);
 }
