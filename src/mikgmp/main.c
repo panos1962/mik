@@ -14,7 +14,9 @@
 // χρόνους εκτέλεσης κλπ.
 
 static void usage(void) {
-	fprintf(stderr, "usage: %s [-v] [-s] [-D] number [number]\n",
+	fprintf(stderr, "usage: %s [-v] [-s] [-D mode] number [number]\n" \
+		"mode 1: function calls\n" \
+		"mode 2: print parts\n",
 		progname);
 	exit(EXIT_USAGE);
 }
@@ -26,28 +28,31 @@ int main(int argc, char *argv[]) {
 	progname = argv[0];
 
 	int opt;
-	int verbose = 0;
-	int silent = 0;
 	int errs = 0;
 
-	while ((opt = getopt(argc, argv, ":vsD")) != EOF) {
+	while ((opt = getopt(argc, argv, ":vsrD:")) != EOF) {
 		switch (opt) {
 
 		// By default το πρόγραμμα εκτυπώνει το [N]. Με την option -v
 		// (verbose) εκτυπώνεται το N και το [N].
 		case 'v':
-			verbose = 1;
+			progopts |= MODE_VERBOSE;
 			break;
 
 		// Με την option -s ακυρώνουμε οποιοδήποτε output. Προφανώς
 		// αυτό είναι κάτι που μπορεί να χρειαστεί μόνο σε μετρήσεις
 		// απόδοσης.
 		case 's':
-			silent = 1;
+			progopts |= MODE_SILENT;
+			break;
+
+		// Με την option -r αντιστρέφουμε τη σειρά των υπολογισμών.
+		case 'r':
+			progopts |= MODE_REVERSE;
 			break;
 
 		case 'D':
-			debug = 1;
+			progopts |= (atoi(optarg) << 3);
 			break;
 
 		default:
@@ -115,16 +120,24 @@ int main(int argc, char *argv[]) {
 		step = -1;
 	}
 
+	if (progopts & MODE_REVERSE) {
+		int t = min;
+
+		min = max;
+		max = t;
+		step = -step;
+	}
+
 	mpz_t mik;
 	mpz_init(mik);
 
 	for (int i = min; n >= 0; i += step, n--) {
 		mikAll(mik, i);
 
-		if (silent)
+		if (progopts & MODE_SILENT)
 		continue;
 
-		if (verbose)
+		if (progopts & MODE_VERBOSE)
 		printf("%d ", i);
 
 		mpz_out_str(stdout, 10, mik);
@@ -132,9 +145,6 @@ int main(int argc, char *argv[]) {
 	}
 
 	mpz_clear(mik);
-
-	if (debug)
 	printDebug();
-
 	exit(0);
 }

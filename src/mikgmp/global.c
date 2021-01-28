@@ -1,4 +1,4 @@
 #include "mik.h"
 
 char *progname = "mik";
-int debug = 0;
+unsigned int progopts = 0;

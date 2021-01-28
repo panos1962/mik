@@ -1,7 +1,7 @@
 #include "mik.h"
 
 #define MIK_PART_ADD(count, n, k) { \
-	if (debug) \
+	if (progopts & MODE_DEBUG_CALLS) \
 	mikPartCallCount++; \
 \
 	if (!mikMmzSet[n][k]) \
@@ -28,7 +28,7 @@ static mpz_t mikMmzVal[MAX + 1][MAX + 1];
 // υπάρχει σημαντική διαφορά στην απόδοση.
 
 static void mikPart(int n, int k) {
-	if (debug)
+	if (progopts & MODE_DEBUG_CALLS) \
 	mikPartExecCount++;
 
 	mpz_init(mikMmzVal[n][k]);
@@ -85,23 +85,44 @@ void mikAll(mpz_t count, int n) {
 }
 
 void printDebug(void) {
-	fprintf(stderr, "Calls: %llu\nExecs: %llu",
-		mikPartCallCount, mikPartExecCount);
+	if (progopts & MODE_DEBUG_CALLS) {
+		fprintf(stderr, "Calls: %llu\nExecs: %llu",
+			mikPartCallCount, mikPartExecCount);
 
-	if (mikPartCallCount)
-	fprintf(stderr, " (%.2lf%%)",
-		(100.0 * mikPartExecCount) / mikPartCallCount);
+		if (mikPartCallCount)
+		fprintf(stderr, " (%.2lf%%)",
+			(100.0 * mikPartExecCount) / mikPartCallCount);
 
-	putc('\n', stderr);
+		putc('\n', stderr);
+	}
 
-	for (int i = 1; i <= MAX; i++) {
-		for (int j = 1; j <= MAX; j++) {
-			if (!mpz_cmp_ui(mikMmzVal[i][j], 0))
-			continue;
+	if (progopts & MODE_DEBUG_PARTS) {
+		int i;
+		int j;
+		int k;
+		int step;
 
-			fprintf(stderr, "[%d:%d] = ", i, j);
-			mpz_out_str(stderr, 10, mikMmzVal[i][j]);
-			putc('\n', stderr);
+		if (progopts & MODE_REVERSE) {
+			i = MAX;
+			k = MAX;
+			step = -1;
+		}
+
+		else {
+			i = 1;
+			k = 1;
+			step = 1;
+		}
+
+		for (int n = 0; n < MAX; n++, i += step) {
+			for (int m = 0, j = k; m < MAX; m++, j += step) {
+				if (!mikMmzSet[i][j])
+				continue;
+
+				fprintf(stderr, "[%d:%d] = ", i, j);
+				mpz_out_str(stderr, 10, mikMmzVal[i][j]);
+				putc('\n', stderr);
+			}
 		}
 	}
 }
