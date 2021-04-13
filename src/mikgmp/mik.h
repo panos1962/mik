@@ -11,7 +11,7 @@
 #define MODE_DEBUG_CALLS 8
 #define MODE_DEBUG_PARTS 16
 
-#define MAX 10000
+#define MAX 16384
 
 extern char *progname;
 extern unsigned progopts;
